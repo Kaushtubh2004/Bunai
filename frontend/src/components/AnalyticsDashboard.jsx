@@ -20,7 +20,6 @@ const AnalyticsDashboard = ({ name, userId }) => {
       const portfoliosWithVisits = await Promise.all(
         data.map(async (p) => {
           const visit = await fetchVisits(p.username);
-          console.log(visit);
           
 
           return {
