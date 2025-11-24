@@ -6,7 +6,7 @@ import Footer from '../components/ui/Footer';
 
 const HomePage = () => {
   const googleAuth = () => {
-    window.open("http://localhost:8000/api/v1/users/google", "_self");
+    window.open("https://bunai-bgja.onrender.com/api/v1/users/google", "_self");
   };
 
   return (

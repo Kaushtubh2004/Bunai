@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const serverUrl = "http://localhost:8000/api/v1/users";
+  const serverUrl = "https://bunai-bgja.onrender.com/api/v1/users";
 
   useEffect(() => {
     const fetchUser = async () => {
