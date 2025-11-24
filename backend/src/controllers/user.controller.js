@@ -23,12 +23,14 @@ const loginFailed = asyncHandler(async (req, res) => {
 });
 
 // Login Success
-const loginSuccess = asyncHandler(async (req, res, next) => {
-  if (!req.user) {
-    return next(new ApiError(401, "Authentication failed"));
-  }
-  res.status(200).json(new ApiResponse(200, "Login successful", { user: req.user }));
+const loginSuccess = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Authenticated",
+    user: req.user
+  });
 });
+
 
 // Google OAuth Scope
 const googleScope = passport.authenticate("google", {
