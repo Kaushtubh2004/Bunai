@@ -8,10 +8,10 @@ import "./utils/passport.js";
 const app = express();
 
 app.use(cors({
-  origin: process.env.CLIENT_URL,
-  methods: "GET,POST,PUT,DELETE",
+  origin: "https://bunai-beta.vercel.app",
   credentials: true,
 }));
+
 
 
 app.use(express.json());
