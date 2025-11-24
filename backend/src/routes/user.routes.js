@@ -33,6 +33,7 @@ import {
 } from "../controllers/user.controller.js";
 import passport from "passport";
 import {upload} from "../middlewares/multer.middleware.js"
+import {verifyJwt} from "../middlewares/jwt.middleware.js";
 
 const router = express.Router();
 
@@ -42,7 +43,7 @@ router.get("/google/callback", passport.authenticate("google", { failureRedirect
   googleAuthenticate);
 
 // Optional success/fail routes (if needed for testing)
-router.get("/login/success", loginSuccess);
+router.get("/login/success", verifyJwt, loginSuccess);
 router.get("/login/failed", loginFailed);
 router.get("/logout", logout);
 router.get("/portfolios", getPortfolios);
