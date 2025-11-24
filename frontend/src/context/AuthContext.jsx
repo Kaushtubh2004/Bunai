@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
         const res = await fetch(`${serverUrl}/login/success`, {
           method: "GET",
           credentials: "include",
-        });
+        }).then(r=>r.json()).then(console.log);
 
         if (!res.ok) throw new Error("Not authenticated");
 
