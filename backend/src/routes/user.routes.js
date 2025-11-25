@@ -33,7 +33,7 @@ import {
 } from "../controllers/user.controller.js";
 import passport from "passport";
 import {upload} from "../middlewares/multer.middleware.js"
-import {verifyJwt} from "../middlewares/jwt.middleware.js";
+import {verifyJwt} from "../middlewares/verifyJwt.js";
 
 const router = express.Router();
 
