@@ -13,13 +13,19 @@ export const AuthProvider = ({ children }) => {
         const res = await fetch(`${serverUrl}/login/success`, {
           method: "GET",
           credentials: "include",
-        }).then(r=>r.json()).then(console.log);
+        });
 
-        if (!res.ok) throw new Error("Not authenticated");
+        // First check HTTP status
+        if (!res.ok) {
+          throw new Error("Not authenticated");
+        }
 
         const data = await res.json();
-        if (data?.message?.user) {
-          setUser(data.message.user);
+        console.log("Auth check response:", data);
+
+        // Adjusted to your NEW response shape
+        if (data?.success && data?.user) {
+          setUser(data.user);
         } else {
           setUser(null);
         }
@@ -33,6 +39,7 @@ export const AuthProvider = ({ children }) => {
 
     fetchUser();
   }, []);
+
 
   const logout = async () => {
     try {
@@ -685,7 +692,7 @@ export const AuthProvider = ({ children }) => {
 
   //add visits
   const addVisits = async (pageId) => {
-    
+
     if (!pageId) return console.error("Page ID is missing");
 
     try {
@@ -711,7 +718,7 @@ export const AuthProvider = ({ children }) => {
   // fetch Visits
   const fetchVisits = async (pageId) => {
     if (!pageId) return console.error("Page ID is missing");
-    
+
     try {
       const res = await fetch(
         `${serverUrl}/fetchVisits?pageId=${pageId}`,
@@ -725,7 +732,7 @@ export const AuthProvider = ({ children }) => {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch visits");
-      
+
       return data;
     } catch (error) {
       console.error("Error fetching visit count:", error);
