@@ -9,7 +9,7 @@ passport.use(new GoogleStrategy({
     callbackURL: "https://bunai-bgja.onrender.com/api/v1/users/google/callback",
     scope: ['profile','email']
 },
- async function( profile, done) {
+ async function(accessToken, refreshToken, profile, done) {
     try {
         console.log(profile);
         
@@ -35,20 +35,19 @@ passport.use(new GoogleStrategy({
 }
 ));
 
-// passport.serializeUser((user, done) => {
-//   done(null, user._id);
-// });
+passport.serializeUser((user, done) => {
+  done(null, user._id);
+});
 
 
 
-// passport.deserializeUser(async(id, done) => {
-//     try {
-//         const user = await User.findById(id); 
-//         done(null, user); 
-//     } catch (error) {
-//         done(error, null);
-//     }
-// });
-
+passport.deserializeUser(async(id, done) => {
+    try {
+        const user = await User.findById(id); 
+        done(null, user); 
+    } catch (error) {
+        done(error, null);
+    }
+});
 
 export default passport;

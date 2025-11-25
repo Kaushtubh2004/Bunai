@@ -49,8 +49,13 @@ const googleAuthenticate = async (req, res, next) => {
       { expiresIn: "7d" }
     );
 
-    res.redirect(`${process.env.CLIENT_URL}/dashboard?token=${token}`);
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
 
+    res.redirect(`${process.env.CLIENT_URL}/dashboard`);
   } catch (error) {
     console.error("Google Auth Error:", error);
     next(error);
