@@ -7,12 +7,21 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const serverUrl = "https://bunai-bgja.onrender.com/api/v1/users";
 
+
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get("token");
+    if (token) {
+      localStorage.setItem("accessToken", token);
+    }
+  }, []);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await fetch(`${serverUrl}/login/success`, {
-          method: "GET",
-          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
         });
 
         // First check HTTP status

@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 
 export const verifyJwt = async (req, res, next) => {
   try {
-    const token = req.cookies.accessToken;
+    const token = req.headers.authorization?.split(" ")[1];
     if (!token) return next(new ApiError(401, "Not authenticated"));
 
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
