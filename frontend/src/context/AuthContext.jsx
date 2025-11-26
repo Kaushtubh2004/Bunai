@@ -9,28 +9,35 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      const token = localStorage.getItem("token"); // 1️⃣ get token from storage
+
+      if (!token) {
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const res = await fetch(`${serverUrl}/login/success`, {
+        const res = await fetch(`${serverUrl}/me`, {
           method: "GET",
-          credentials: "include",
+          headers: {
+            "Authorization": `Bearer ${token}`,  // 2️⃣ send token to backend
+            "Content-Type": "application/json",
+          },
         });
 
-        // First check HTTP status
-        if (!res.ok) {
-          throw new Error("Not authenticated");
-        }
+        if (!res.ok) throw new Error("Invalid token");
 
         const data = await res.json();
         console.log("Auth check response:", data);
 
-        // Adjusted to your NEW response shape
         if (data?.success && data?.user) {
           setUser(data.user);
         } else {
           setUser(null);
         }
-      } catch (err) {
-        console.error("Authentication check failed:", err);
+      } catch (error) {
+        console.error("Authentication failed:", error);
         setUser(null);
       } finally {
         setLoading(false);
@@ -40,19 +47,11 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-
-  const logout = async () => {
-    try {
-      const res = await fetch(`${serverUrl}/logout`, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Logout failed");
-      setUser(null);
-      window.location.replace("/");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+  // ✅ Logout
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    window.location.replace("/");
   };
 
   // ✅ Add Portfolio
@@ -62,9 +61,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/addPortfolio?userId=${user._id}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify(portfolio),
-        credentials: "include",
       });
 
       const data = await res.json();
@@ -89,7 +90,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/portfolios?userId=${userId}`, {
         method: "GET",
-        credentials: "include",
+
       });
 
       const data = await res.json();
@@ -110,9 +111,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/deletePortfolio/${id}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -148,10 +149,10 @@ export const AuthProvider = ({ children }) => {
         {
           method: "POST",
           headers: {
-            ...(token && { Authorization: `Bearer ${token}` }),
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: formData,
-          credentials: "include",
         }
       );
 
@@ -187,10 +188,9 @@ export const AuthProvider = ({ children }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({ portfolioId, ...socialLinks }),
-          credentials: "include",
         }
       );
 
@@ -223,10 +223,9 @@ export const AuthProvider = ({ children }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(skillData),
-          credentials: "include",
         }
       );
 
@@ -257,10 +256,10 @@ export const AuthProvider = ({ children }) => {
         {
           method: "POST",
           headers: {
-            ...(token && { Authorization: `Bearer ${token}` }),
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: formData,
-          credentials: "include",
         }
       );
 
@@ -291,10 +290,10 @@ export const AuthProvider = ({ children }) => {
         {
           method: "POST",
           headers: {
-            ...(token && { Authorization: `Bearer ${token}` }),
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: formData,
-          credentials: "include",
         }
       );
 
@@ -321,10 +320,9 @@ export const AuthProvider = ({ children }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(educationData),
-          credentials: "include",
         }
       );
 
@@ -351,10 +349,9 @@ export const AuthProvider = ({ children }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(experienceData),
-          credentials: "include",
         }
       );
 
@@ -381,12 +378,11 @@ export const AuthProvider = ({ children }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({
             hobby: hobbiesData.hobby,  // Ensure it's sent as JSON
           }),
-          credentials: "include",
         }
       );
 
@@ -410,7 +406,10 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await fetch(`${serverUrl}/generateContent`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify({ text }),
       });
 
@@ -436,7 +435,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/fetchAllData?portfolioId=${portfolioId}`, {
         method: "GET",
-        credentials: "include",
       });
 
       const data = await res.json();
@@ -457,9 +455,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/deleteSkills?itemId=${id}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -480,9 +478,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/deleteProject?itemId=${id}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -503,9 +501,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/deleteCertificate?itemId=${id}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -526,9 +524,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/deleteEducation?itemId=${id}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -549,9 +547,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/deleteExperience?itemId=${id}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -572,9 +570,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/deleteHobbies?itemId=${id}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
         },
       });
 
@@ -602,10 +600,9 @@ export const AuthProvider = ({ children }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(token && { Authorization: `Bearer ${token}` }),
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({ theme }),
-          credentials: "include",
         }
       );
 
@@ -627,7 +624,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/fetchAllDataUsingUsername?username=${username}`, {
         method: "GET",
-        credentials: "include",
       });
 
       const data = await res.json();
@@ -652,10 +648,10 @@ export const AuthProvider = ({ children }) => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify(messageData),
-          credentials: "include",
         }
       );
 
@@ -676,7 +672,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await fetch(`${serverUrl}/fetchMessages?portfolioId=${portfolioId}`, {
         method: "GET",
-        credentials: "include",
       });
 
       const data = await res.json();
@@ -702,7 +697,8 @@ export const AuthProvider = ({ children }) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-          }
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
         }
       );
 
@@ -726,6 +722,7 @@ export const AuthProvider = ({ children }) => {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );

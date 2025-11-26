@@ -7,6 +7,7 @@ import ProtectedRoute from './route/ProtectedRoute';
 import './App.css';
 import UserPortfolio from './pages/UserPortfolio';
 import NotFound from './pages/NotFound';
+import AuthSuccess from './route/AuthSuccess';
 
 const App = () => {
   const { user, loading } = useAuth();
@@ -29,6 +30,7 @@ const App = () => {
 
   return (
     <Routes>
+      <Route path="/auth/success" element={<AuthSuccess />} />
       <Route
         path="/"
         element={user ? <Navigate to="/dashboard" /> : <HomePage />}

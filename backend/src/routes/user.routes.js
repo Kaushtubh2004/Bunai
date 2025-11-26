@@ -1,10 +1,8 @@
 import express from "express";
 import {
-  loginFailed,
-  loginSuccess,
   googleAuthenticate,
   googleScope,
-  logout,
+  authMe,
   getPortfolios,
   createPortfolio,
   updateThemePortfolio,
@@ -37,15 +35,14 @@ import {verifyJwt} from "../middlewares/verifyJwt.js";
 
 const router = express.Router();
 
-// Google OAuth routes
 router.get("/google", googleScope);
-router.get("/google/callback", passport.authenticate("google", { failureRedirect: `${process.env.CLIENT_URL}/login` }),
-  googleAuthenticate);
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { session: false }),
+  googleAuthenticate
+);
 
-// Optional success/fail routes (if needed for testing)
-router.get("/login/success", verifyJwt, loginSuccess);
-router.get("/login/failed", loginFailed);
-router.get("/logout", logout);
+router.get("/me", verifyJwt, authMe);
 router.get("/portfolios", getPortfolios);
 router.post("/addPortfolio", createPortfolio);
 router.delete("/deletePortfolio/:id", deletePortfolio);

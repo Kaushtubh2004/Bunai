@@ -138,7 +138,7 @@ const Template = ({ userId }) => {
 
                 {portfolio.theme && (
                   <a
-                    href={`http://localhost:5173/portfolio/${portfolio.username}`}
+                    href={`https://bunai-beta.vercel.app/portfolio/${portfolio.username}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}

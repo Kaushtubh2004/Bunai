@@ -17,19 +17,6 @@ import { Visits } from "../models/visits.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";// for genai
 
-// Login Failed
-const loginFailed = asyncHandler(async (req, res) => {
-  res.status(401).json(new ApiResponse(401, "Login failed"));
-});
-
-// Login Success
-const loginSuccess = asyncHandler(async (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Authenticated",
-    user: req.user
-  });
-});
 
 
 // Google OAuth Scope
@@ -43,52 +30,29 @@ const googleAuthenticate = async (req, res, next) => {
     const user = req.user;
     if (!user) throw new ApiError(401, "Authentication failed");
 
+    // Generate JWT
     const token = jwt.sign(
       { _id: user._id },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "7d" }
     );
 
-    res.cookie("accessToken", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "None",
-    });
+    return res.redirect(`${process.env.CLIENT_URL}/auth/success?token=${token}`);
 
-    res.redirect(`${process.env.CLIENT_URL}/dashboard`);
+
   } catch (error) {
-    console.error("Google Auth Error:", error);
+    console.log("GoogleAuth Error:", error);
     next(error);
   }
 }
 
-// Logout
-const logout = asyncHandler(async (req, res) => {
 
-  try {
-
-    req.logout(err => {
-      if (err) {
-        console.error("Logout Error:", err);
-        return res.status(500).json(new ApiResponse(500, "Logout failed"));
-      }
-
-
-      res.clearCookie("accessToken", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "None",
-      });
-
-      return res
-        .status(200)
-        .json(new ApiResponse(200, "Logged out successfully"));
-    });
-  } catch (error) {
-    console.error("Logout Catch Error:", error);
-    return res.status(500).json(new ApiResponse(500, "Logout failed"));
-  }
-});
+const authMe = (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: req.user
+  });
+};
 
 // fetch portfolios
 const getPortfolios = asyncHandler(async (req, res) => {
@@ -715,9 +679,9 @@ const fetchAllDataUsingUsername = asyncHandler(async (req, res) => {
 
 // addvisits
 const addVisits = asyncHandler(async (req, res) => {
-  const pageId  = req.query.pageId;
-  
-  if(!pageId)throw new ApiError(400,"pageid is missing");
+  const pageId = req.query.pageId;
+
+  if (!pageId) throw new ApiError(400, "pageid is missing");
 
   await Visits.create({
     pageId,
@@ -757,7 +721,7 @@ const fetchVisits = asyncHandler(async (req, res) => {
       year: m._id.year,
       count: m.count,
     }))
-    .reverse(); 
+    .reverse();
 
   // 3. Growth percentage
   let growth = 0;
@@ -779,7 +743,7 @@ const fetchVisits = asyncHandler(async (req, res) => {
   });
 
   if (prevMonth === 0 && currMonth > 0) {
-    growth = 100; 
+    growth = 100;
   } else if (prevMonth > 0) {
     growth = ((currMonth - prevMonth) / prevMonth) * 100;
   }
@@ -795,11 +759,9 @@ const fetchVisits = asyncHandler(async (req, res) => {
 
 
 export {
-  loginFailed,
-  loginSuccess,
   googleAuthenticate,
   googleScope,
-  logout,
+  authMe,
   getPortfolios,
   createPortfolio,
   updateThemePortfolio,
