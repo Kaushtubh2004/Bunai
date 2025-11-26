@@ -149,7 +149,6 @@ export const AuthProvider = ({ children }) => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: formData,
@@ -255,7 +254,6 @@ export const AuthProvider = ({ children }) => {
         {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
             "Authorization": `Bearer ${localStorage.getItem("token")}`,
           },
           body: formData,
@@ -274,41 +272,36 @@ export const AuthProvider = ({ children }) => {
 
   // ✅ add Certificate
   const addCertificate = async (certificateData, portfolioId) => {
-    if (!portfolioId) {
-      console.error("Portfolio ID is missing");
-      return;
-    }
+    if (!portfolioId) return console.error("Portfolio ID is missing");
 
     try {
+      const token = localStorage.getItem("authToken");
       const formData = new FormData();
 
-      // Certificate fields
-      Object.entries(certificateData).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
+      Object.entries(certificateData).forEach(([key, value]) =>
+        formData.append(key, value)
+      );
 
-      // Add portfolio id to formData
-      formData.append("portfolioId", portfolioId);
-
-      const res = await fetch(`${serverUrl}/addCertificate`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: formData,
-      });
+      const res = await fetch(
+        `${serverUrl}/addCertificate?portfolioId=${portfolioId}`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: formData,
+        }
+      );
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to save certificate");
 
       return data.data;
-
     } catch (error) {
       console.error("Error adding certificate:", error);
       alert("Authorization failed. Please log in again.");
     }
   };
-
 
   // ✅ add Education
   const addEducation = async (educationData, portfolioId) => {
