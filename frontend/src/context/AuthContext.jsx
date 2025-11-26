@@ -244,7 +244,6 @@ export const AuthProvider = ({ children }) => {
     if (!portfolioId) return console.error("Portfolio ID is missing");
 
     try {
-      const token = localStorage.getItem("authToken");
       const formData = new FormData();
 
       Object.entries(projectData).forEach(([key, value]) =>
@@ -278,7 +277,6 @@ export const AuthProvider = ({ children }) => {
     if (!portfolioId) return console.error("Portfolio ID is missing");
 
     try {
-      const token = localStorage.getItem("authToken");
       const formData = new FormData();
 
       Object.entries(certificateData).forEach(([key, value]) =>
